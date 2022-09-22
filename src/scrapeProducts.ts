@@ -55,8 +55,10 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 		if (link instanceof HTMLAnchorElement) return link.href
 	}));
     
+	// for (let i = 0; i < 3; i++) {
 	for (const link of links) {
-		console.log('Produto:  ',counter);
+		console.log('Produto: ',counter);
+		// await page.goto(links[i]);
 		await page.goto(link);
 
 		const productData: Product = await page.evaluate(() => {
@@ -72,7 +74,7 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 			let product_name = '';
 			let product_nameElement = document.querySelector('h1');
 			if (product_nameElement instanceof HTMLElement) {
-				product_name = product_nameElement.innerText
+				product_name = product_nameElement.innerText.split(' -')[0]
 			}
 
 			let quantity = '';
@@ -89,14 +91,21 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 
 			let packaging = '';
 			let packagingElement = document.querySelector('#field_packaging_value');
-			if (packagingElement instanceof HTMLElement) {
+
+			if (packagingElement instanceof HTMLSpanElement) {
 				packaging = packagingElement.innerText
 			}
 
 			let brands = '';
-			let brandslement = document.querySelector('#field_brands_value');
-			if (brandslement instanceof HTMLElement) {
-				packaging = brandslement.innerText
+			let brandslement = document.querySelector('#field_brands_value a');
+			if (brandslement instanceof HTMLAnchorElement) {
+				brands = brandslement.innerText
+			}
+
+			let image_url = '';
+			let image_urlElement = document.querySelector('#og_image');
+			if (image_urlElement instanceof HTMLImageElement) {
+				image_url = image_urlElement.src
 			}
 
 			return {
@@ -108,6 +117,7 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 				categories,
 				packaging,
 				brands,
+				image_url
 			}
 		})
 
@@ -116,12 +126,14 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 			barcode: productData.barcode,
 			status: productData.status,
 			imported_t: dayjs().utc().format(),
+			// url: links[i],
 			url: link,
 			product_name: productData.product_name,
 			quantity: productData.quantity,
 			categories: productData.categories,
 			packaging: productData.packaging,
-			brands: productData.brands
+			brands: productData.brands,
+			image_url: productData.image_url
 		}
 
         products.push(product)
