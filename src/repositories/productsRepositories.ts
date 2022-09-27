@@ -17,9 +17,25 @@ export interface Product {
 export interface Products extends Array<Product> { };
 
 export const insertProducts = async (producstData: Products) => {
-    const result = await prisma.products.createMany({
-        data: producstData
-    })
+	const codes = producstData.map(product => product.code)
+	const result = await prisma.products.findMany({
+		where: {
+			code: {
+				in: codes
+			}
+		}
+	})
+
+	if (result) {
+		const newProducts = producstData.filter((product, index) => !codes.includes(product.code))
+		await prisma.products.createMany({
+			data: newProducts
+		})
+	} else {
+		await prisma.products.createMany({
+			data: producstData
+		})
+	}
 };
 
 export const getProducts = async () => {

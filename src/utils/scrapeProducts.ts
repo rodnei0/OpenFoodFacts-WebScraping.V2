@@ -13,36 +13,13 @@ let counter = 1;
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(0);
     await page.goto('https://world.openfoodfacts.org');
-    
-/*     const links = await page.evaluate(() => {
-            let elements = Array.from(document.querySelectorAll('#products_match_all li a'))
-            let links = elements.map(link => {
-                if (link instanceof HTMLAnchorElement) {
-                    return link.href
-                }
-            })
-            return links
-    }); */
-
-	/* 		const code = await page.$eval('#barcode', element => {if (element instanceof HTMLElement) return element.innerText})
-        const barcode = code+" (EAN / EAN-13)";
-        const status = "imported";
-        const imported_t = dayjs().utc().format();
-        const url = link;
-        const product_name = await page.$eval('h1', element => {if (element instanceof HTMLElement) return element.innerText.split(' -')[0]});
-        const quantity = await page.$eval('#field_quantity_value', element => {if (element instanceof HTMLElement) return element.innerText});
-        const categories = await page.$eval('#field_categories_value', element => {if (element instanceof HTMLElement) return element.innerText});
-        const packaging = await page.$eval('#field_packaging_value', element => {if (element instanceof HTMLElement) return element.innerText});
-        const brands = await page.$eval('#field_brands_value', element => {if (element instanceof HTMLElement) return element.innerText}); */
 
     const links = await page.$$eval('#products_match_all li a', element => element.map(link => {
 		if (link instanceof HTMLAnchorElement) return link.href
 	}));
     
-	// for (let i = 0; i < 3; i++) {
 	for (const link of links) {
 		console.log('Produto: ',counter);
-		// await page.goto(links[i]);
 		await page.goto(link!);
 
 		const productData: Product = await page.evaluate(() => {
