@@ -1,27 +1,12 @@
+import { insertProducts } from '../repositories/productsRepositories.js';
+import { Products, Product } from '../repositories/productsRepositories.js';
 import * as puppeteer from 'puppeteer';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 dayjs.extend(utc);
 
-interface Product {
-    code: number;
-    barcode: string;
-    imported_t?: string;
-    url?: string;
-    product_name: string;
-    quantity: string;
-    categories: string;
-    packaging: string;
-    brands: string;
-    image_url?: string;
-};
-
-interface Products extends Array<Product> { };
-
 const products: Products = [];
 let counter = 1;
-const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
-
 
 (async () => {
     const browser = await puppeteer.launch({headless: false});
@@ -58,7 +43,7 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 	for (const link of links) {
 		console.log('Produto: ',counter);
 		// await page.goto(links[i]);
-		await page.goto(link);
+		await page.goto(link!);
 
 		const productData: Product = await page.evaluate(() => {
 			let code = '';
@@ -109,6 +94,8 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 			return {
 				code: parseInt(code),
 				barcode,
+				imported_t: '',
+				url: '',
 				product_name,
 				quantity,
 				categories,
@@ -122,8 +109,7 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 			code: productData.code,
 			barcode: productData.barcode,
 			imported_t: dayjs().utc().format(),
-			// url: links[i],
-			url: link,
+			url: link!,
 			product_name: productData.product_name,
 			quantity: productData.quantity,
 			categories: productData.categories,
@@ -138,6 +124,7 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 	}
 
     console.log(products);
+	await insertProducts(products)
 
     await browser.close();
   })();

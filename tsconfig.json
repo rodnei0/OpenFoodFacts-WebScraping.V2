@@ -6,7 +6,10 @@
         "outDir": "dist",
         "sourceMap": true,
         "strict": true,
-        "lib": ["esnext"],
+        "lib": [
+            "esnext",
+            "dom"
+        ],
     },
     "ts-node": {
         "esm": true
