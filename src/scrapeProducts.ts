@@ -6,7 +6,6 @@ dayjs.extend(utc);
 interface Product {
     code: number;
     barcode: string;
-    status: string;
     imported_t?: string;
     url?: string;
     product_name: string;
@@ -69,7 +68,6 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 			}
 
 			const barcode = code+" (EAN / EAN-13)";
-			const status = "imported";
 
 			let product_name = '';
 			let product_nameElement = document.querySelector('h1');
@@ -111,7 +109,6 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 			return {
 				code: parseInt(code),
 				barcode,
-				status,
 				product_name,
 				quantity,
 				categories,
@@ -124,7 +121,6 @@ const baseImageUrl = 'https://static.openfoodfacts.org/images/products/';
 		const product: Product = {
 			code: productData.code,
 			barcode: productData.barcode,
-			status: productData.status,
 			imported_t: dayjs().utc().format(),
 			// url: links[i],
 			url: link,
