@@ -14,7 +14,7 @@ export const getProducts = async (req: Request, res: Response) => {
 export const getProductByCode = async (req: Request, res: Response) => {
     const { code } = req.params;
 
-    const products = await productService.getProductByCode(code);
-
-    res.send(products).status(200)
+    const products = await productService.getProductByCode(parseInt(code));
+    
+    res.send(products)
 };

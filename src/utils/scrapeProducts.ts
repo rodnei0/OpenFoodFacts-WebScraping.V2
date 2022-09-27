@@ -123,7 +123,6 @@ let counter = 1;
 		counter++;
 	}
 
-    console.log(products);
 	await insertProducts(products)
 
     await browser.close();

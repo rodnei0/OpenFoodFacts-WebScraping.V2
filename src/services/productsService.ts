@@ -12,7 +12,7 @@ export const getProducts = async () => {
 export const getProductByCode = async (code: number) => {
     const product = await productRepository.getProductByCode(code);
 
-    if (product.length === 0) throw notFoundError('There is no product with this code in the database!');
+    if (!product) throw notFoundError('There is no product with this code in the database!');
 
     return product;
 };
