@@ -17,23 +17,24 @@ let pageNumber = 2;
     await page.goto(baseUrl);
 
 	const linksFromDb = await getStoredLinks();
+	let linksFromScraping:Array <string> = [];
 
 	const getLinks = async () => {
 		let result  = await page.$$eval('#products_match_all li a', element => element.map(link => {
 			if (link instanceof HTMLAnchorElement) return link.href
 		}));
 
-		result = result.filter((link) => !linksFromDb.includes(link!))
+		linksFromScraping.push(...result.filter((link): link is string => !linksFromDb.includes(link!)))
 
-		if (result.length < 100) {
+		if (linksFromScraping.length < 100) {
 			await page.goto(baseUrl+pageNumber.toString());
 			pageNumber++;
-			result = await getLinks();
+			await getLinks();
 		} else {
-			result = result.slice(0,100)
+			linksFromScraping = linksFromScraping.slice(0,100)
 		}
 
-		return result;
+		return linksFromScraping;
 	}
     
 	const links = await getLinks();
@@ -125,9 +126,7 @@ let pageNumber = 2;
 		counter++;
 	}
 
-	const result = await insertProducts(products);
-
-	console.log(result)
+	await insertProducts(products);
 
     await browser.close();
   })();
