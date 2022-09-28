@@ -17,25 +17,11 @@ export interface Product {
 export interface Products extends Array<Product> { };
 
 export const insertProducts = async (producstData: Products) => {
-	const codes = producstData.map(product => product.code)
-	const result = await prisma.products.findMany({
-		where: {
-			code: {
-				in: codes
-			}
-		}
-	})
+	const result = await prisma.products.createMany({
+		data: producstData
+	});
 
-	if (result) {
-		const newProducts = producstData.filter((product, index) => !codes.includes(product.code))
-		await prisma.products.createMany({
-			data: newProducts
-		})
-	} else {
-		await prisma.products.createMany({
-			data: producstData
-		})
-	}
+	return result
 };
 
 export const getProducts = async () => {
@@ -53,3 +39,15 @@ export const getProductByCode = async (code: number) => {
 
 	return result
 };
+
+export const getStoredLinks = async () => {
+	const result = await prisma.products.findMany({
+		select: {
+			url: true
+		}
+	});
+
+	const links = result.map(({url}) => url);
+
+	return links
+}

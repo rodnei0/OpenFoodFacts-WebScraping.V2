@@ -1,4 +1,4 @@
-import { insertProducts } from '../repositories/productsRepositories.js';
+import { getStoredLinks, insertProducts } from '../repositories/productsRepositories.js';
 import { Products, Product } from '../repositories/productsRepositories.js';
 import * as puppeteer from 'puppeteer';
 import dayjs from 'dayjs';
@@ -7,17 +7,37 @@ dayjs.extend(utc);
 
 const products: Products = [];
 let counter = 1;
+let pageNumber = 2;
 
 (async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(0);
-    await page.goto('https://world.openfoodfacts.org');
+	const baseUrl = 'https://world.openfoodfacts.org/';
+    await page.goto(baseUrl);
 
-    const links = await page.$$eval('#products_match_all li a', element => element.map(link => {
-		if (link instanceof HTMLAnchorElement) return link.href
-	}));
+	const linksFromDb = await getStoredLinks();
+
+	const getLinks = async () => {
+		let result  = await page.$$eval('#products_match_all li a', element => element.map(link => {
+			if (link instanceof HTMLAnchorElement) return link.href
+		}));
+
+		result = result.filter((link) => !linksFromDb.includes(link!))
+
+		if (result.length < 100) {
+			await page.goto(baseUrl+pageNumber.toString());
+			pageNumber++;
+			result = await getLinks();
+		} else {
+			result = result.slice(0,100)
+		}
+
+		return result;
+	}
     
+	const links = await getLinks();
+
 	for (const link of links) {
 		console.log('Produto: ',counter);
 		await page.goto(link!);
@@ -82,6 +102,11 @@ let counter = 1;
 			}
 		})
 
+		if (!productData.code) {
+			productData.code = parseInt(link!.split('/')[4]);
+			productData.barcode = link!.split('/')[4]+" (EAN / EAN-13)"
+		} 
+
 		const product: Product = {
 			code: productData.code,
 			barcode: productData.barcode,
@@ -100,7 +125,9 @@ let counter = 1;
 		counter++;
 	}
 
-	await insertProducts(products)
+	const result = await insertProducts(products);
+
+	console.log(result)
 
     await browser.close();
   })();
