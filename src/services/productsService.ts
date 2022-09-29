@@ -24,3 +24,4 @@ export const getProductByCode = async (code: number) => {
 console.log("teste");
 console.log("teste2");
 console.log("teste3");
+console.log("teste3.1");
