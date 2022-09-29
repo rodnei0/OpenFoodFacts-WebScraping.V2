@@ -29,3 +29,4 @@ console.log("teste4");
 console.log("teste4.1");
 console.log("teste5");
 console.log("teste6");
+console.log("teste7");
