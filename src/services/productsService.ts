@@ -25,3 +25,4 @@ console.log("teste");
 console.log("teste2");
 console.log("teste3");
 console.log("teste3.1");
+console.log("teste4");
